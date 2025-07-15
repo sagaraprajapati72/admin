@@ -1,0 +1,167 @@
+name: Build and Deploy Next.js App
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "BACKEND_API_URL=${{ secrets.BACKEND_API_URL }}" >> .env
+          echo "BACKEND_BOOKSEARCH_URL=${{ secrets.BACKEND_BOOKSEARCH_URL }}" >> .env
+          echo "BACKEND_GENAI_API_URL=${{ secrets.BACKEND_GENAI_API_URL }}" >> .env
+
+      # Step 2: Install project dependencies
+      - name: Install Dependencies
+        run: |
+          echo "=== Installing Project Dependencies ==="
+          npm install || { echo "npm install failed"; exit 1; }
+          echo "=== Dependencies Installed ==="
+          npm ls --depth=0
+
+      # Step 3: Build the Next.js application
+      - name: Build Next.js Application
+        run: |
+          echo "=== Building Next.js Application ==="
+          npm run build || { echo "Build failed"; exit 1; }
+          echo "=== Build Completed ==="
+
+      # Step 4: Archive the build artifacts
+      - name: Archive Build Artifacts
+        run: |
+          echo "=== Archiving Build Artifacts ==="
+          tar -czf nextjs-build.tar.gz .next package.json package-lock.json public next.config.ts .env
+          echo "Artifact details:"
+          ls -lh nextjs-build.tar.gz
+
+      # Step 5: Test SSH Connection to the EC2 Instance using appleboy/ssh-action
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "✅ SSH Connection Successful"
+
+      # Step 6: Stop Running Application on EC2 (if any)
+      - name: Stop Running Application on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Stopping any running instance of nextjs-app ==="
+            export PATH=/home/readerszone/.nvm/versions/node/v22.11.0/bin:$PATH
+            pm2 stop nextjs-admin || echo "nextjs-admin not running, skipping stop."
+
+      # Step 7: Delete Existing Deployment Directory on EC2
+      - name: Delete Existing Deployment Directory on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Deleting existing deployment directory on EC2 ==="
+            rm -rf /home/readerszone/readerszoneadmin
+
+      # Step 8: Ensure Deployment Directory Exists on EC2 and copy .env file
+      - name: Ensure Deployment Directory Exists on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Creating deployment directory on EC2 ==="
+            mkdir -p /home/readerszone/readerszoneadmin
+
+      # Step 10: Transfer Build Artifact to the EC2 Instance using appleboy/scp-action
+      - name: Transfer Build Files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          source: "nextjs-build.tar.gz"
+          target: "/home/readerszone/readerszoneadmin"
+
+      # Step 11: Extract the build artifact on EC2
+      - name: Extract Build Artifact on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Extracting build artifact on EC2 ==="
+            cd /home/readerszone/readerszoneadmin && tar -xzf nextjs-build.tar.gz
+
+      # Step 12: Remove Build Archive on EC2
+      - name: Remove Build Archive on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Removing build archive on EC2 ==="
+            rm -f /home/readerszone/readerszoneadmin/nextjs-build.tar.gz
+
+      # Step 13: Install Production Dependencies on EC2    
+      - name: Install Production Dependencies on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Installing production dependencies on EC2 ==="
+            export PATH=/home/readerszone/.nvm/versions/node/v22.11.0/bin:$PATH
+            cd /home/readerszone/readerszoneadmin && npm install --omit=dev --no-optional
+
+      # Step 14: Delete any existing PM2 process for the app on EC2
+      - name: Delete Existing PM2 Process on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Deleting existing PM2 process (if any) ==="
+            export PATH=/home/readerszone/.nvm/versions/node/v22.11.0/bin:$PATH
+            pm2 delete nextjs-admin || echo "No existing nextjs-admin process to delete"
+
+      # Step 15: Start the application with PM2 on EC2
+      - name: Start Application with PM2 on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: readerszone
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "=== Starting application with PM2 ==="
+            export PATH=/home/readerszone/.nvm/versions/node/v22.11.0/bin:$PATH
+            cd /home/readerszone/readerszoneadmin && PORT=4000 pm2 start npm --name 'nextjs-admin' -- run start
