@@ -22,7 +22,7 @@ import {
 import { useForm, useFieldArray, FieldValues } from "react-hook-form";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import React, { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 type PlanForm = {
   name: string;
   monthlyPrice: number;
@@ -55,7 +55,7 @@ export default function EditPlanModal({
 }: EditPlanModalProps) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-
+const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -136,7 +136,11 @@ export default function EditPlanModal({
       });
 
       onUpdate(updated);
+      setTimeout(() => {
+      window.location.reload();
+    }, 500);
       onClose();
+     
     } catch (err: any) {
       toast({
         title: "Update Error",
@@ -147,7 +151,7 @@ export default function EditPlanModal({
       });
     }
   };
-
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />

@@ -22,7 +22,7 @@ import { useForm, Controller } from "react-hook-form";
 import dynamic from "next/dynamic";
 
 // Lazy load ReactQuill
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
 // Dummy image uploader (replace with your working uploader)
