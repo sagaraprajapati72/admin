@@ -27,6 +27,7 @@ import {
   FaLanguage,
   FaRegClipboard,
   FaBookOpen,
+   FaQuestionCircle
 } from "react-icons/fa";
 import NextLink from "next/link";
 import type { IconType } from "react-icons";
@@ -96,6 +97,8 @@ const Header = () => {
   const genresDisclosure = useDisclosure();
   const languagesDisclosure = useDisclosure();
   const planDisclosure = useDisclosure();
+  const faqsDisclosure = useDisclosure();
+
   const mainMenuDisclosure = useDisclosure();
 
   return (
@@ -192,6 +195,13 @@ const Header = () => {
             basePath="plan"
             icon={FaRegClipboard}
             disclosure={planDisclosure}
+            showEdit={false}
+          />
+           <ManageMenu
+            label="FAQS"
+            basePath="faqs"
+            icon={FaQuestionCircle}
+            disclosure={faqsDisclosure}
             showEdit={false}
           />
         </Flex>
