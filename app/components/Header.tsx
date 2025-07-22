@@ -27,7 +27,7 @@ import {
   FaLanguage,
   FaRegClipboard,
   FaBookOpen,
-   FaQuestionCircle
+  FaQuestionCircle
 } from "react-icons/fa";
 import NextLink from "next/link";
 import type { IconType } from "react-icons";
@@ -37,7 +37,7 @@ interface ManageMenuProps {
   basePath: string;
   icon: IconType;
   disclosure: ReturnType<typeof useDisclosure>;
-  showEdit : boolean;
+  showEdit: boolean;
 }
 
 const ManageMenu: React.FC<ManageMenuProps> = ({
@@ -74,11 +74,11 @@ const ManageMenu: React.FC<ManageMenuProps> = ({
         </MenuItem>
       </NextLink>
       {showEdit !== false && (
-      <NextLink href={`/${basePath}/edit`} passHref>
-        <MenuItem icon={<EditIcon />}>
-          Edit {label}
-        </MenuItem>
-      </NextLink>
+        <NextLink href={`/${basePath}/edit`} passHref>
+          <MenuItem icon={<EditIcon />}>
+            Edit {label}
+          </MenuItem>
+        </NextLink>
       )}
       <NextLink href={`/${basePath}/delete`} passHref>
         <MenuItem icon={<DeleteIcon />}>
@@ -115,12 +115,15 @@ const Header = () => {
       zIndex={1000}
     >
       <Flex
-        justify="space-between"
-        align="center"
         maxW="1200px"
         mx="auto"
-        wrap="wrap"
+        align="center"
+        justify="space-between"
+        direction={{ base: "column", md: "row" }}
+        gap={4}
+        flexWrap="wrap"
       >
+
         <Menu
           isOpen={mainMenuDisclosure.isOpen}
           onClose={mainMenuDisclosure.onClose}
@@ -142,6 +145,11 @@ const Header = () => {
             <NextLink href="/category/top-books" passHref>
               <MenuItem icon={<FaBookOpen />}>
                 Manage Top Books by Category
+              </MenuItem>
+            </NextLink>
+            <NextLink href="/Pending-Dispatch" passHref>
+              <MenuItem icon={<FaBookOpen />}>
+                Manage Pending Dispatch books
               </MenuItem>
             </NextLink>
           </MenuList>
@@ -197,7 +205,7 @@ const Header = () => {
             disclosure={planDisclosure}
             showEdit={false}
           />
-           <ManageMenu
+          <ManageMenu
             label="FAQS"
             basePath="faqs"
             icon={FaQuestionCircle}
