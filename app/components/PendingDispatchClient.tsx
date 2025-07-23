@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import MenuCard from "./MenuCard";
 
 // Types
 type Book = {
@@ -26,7 +27,6 @@ type Book = {
   authors: string[];
   borrowedDate: string;
   status: "Pending Dispatch" | "Dispatched";
-  deliveryManId?: string;
 };
 
 type DeliveryMan = {
@@ -49,11 +49,9 @@ const getStatusColor = (status: string) => {
 export default function DispatchBoardPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [deliveryMen, setDeliveryMen] = useState<DeliveryMan[]>([]);
-  const [dispatches, setDispatches] = useState<any[]>([]);
-  const [selectedDeliveryGuyMap, setSelectedDeliveryGuyMap] = useState<Record<string, string>>({});
+  const [selectedGuy, setSelectedGuy] = useState<Record<string, string>>({}); // bookId -> deliveryManId
 
   useEffect(() => {
-    // Fetch delivery men
     const fetchDeliveryMen = async () => {
       try {
         const res = await fetch(`/api/delivery-men`);
@@ -64,12 +62,11 @@ export default function DispatchBoardPage() {
       }
     };
 
-    // Fetch books
     const fetchBooks = async () => {
       try {
         const res = await fetch(`/api/pending-dispatch`);
         const dispatchList = await res.json();
-        setDispatches(dispatchList);
+
         const enriched = await Promise.all(
           dispatchList.map(async (item: any) => {
             try {
@@ -77,13 +74,11 @@ export default function DispatchBoardPage() {
               const book = await bookRes.json();
 
               return {
-                id: item.id.toString(), // delivery ID
+                id: item.id.toString(),
                 title: book.title || `Book #${item.bookId}`,
                 authors: (book.authors || []).map((a: any) => a.name) || [],
-                borrowedDate: item.borrwedAt,
-                status:
-                  item.status === "PENDING_DISPATCH" ? "Pending Dispatch" : "Dispatched",
-                deliveryManId: undefined, // Will be set later if needed
+                borrowedDate: item.borrowedOn,
+                status: item.status === "PENDING_DISPATCH" ? "Pending Dispatch" : "Dispatched",
               };
             } catch (error) {
               console.error("Failed to fetch book detail for ID:", item.bookId, error);
@@ -91,10 +86,8 @@ export default function DispatchBoardPage() {
                 id: item.id.toString(),
                 title: `Book #${item.bookId}`,
                 authors: [],
-                borrowedDate: item.borrwedAt,
-                status:
-                  item.status === "PENDING_DISPATCH" ? "Pending Dispatch" : "Dispatched",
-                deliveryManId: undefined,
+                borrowedDate: item.borrowedOn,
+                status: item.status === "PENDING_DISPATCH" ? "Pending Dispatch" : "Dispatched",
               };
             }
           })
@@ -110,19 +103,13 @@ export default function DispatchBoardPage() {
     fetchBooks();
   }, []);
 
-
-
-  const handleDeliveryPersonChange = (bookId: string, deliveryManId: string) => {
-    setSelectedDeliveryGuyMap((prev) => ({
-      ...prev,
-      [bookId]: deliveryManId,
-    }));
-  };
   const getDeliveryMan = (id?: string) =>
-    deliveryMen.find((dm) => dm.id === id);
+    deliveryMen.find((dm) => dm.id == id);
 
   return (
+    <><MenuCard/>
     <Flex minH="100vh" bg="gray.50">
+      
       <Box flex="1" p={6}>
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
           Book Dispatch Board
@@ -147,22 +134,20 @@ export default function DispatchBoardPage() {
           </Thead>
           <Tbody>
             {books.map((book) => {
-              const deliveryMan = getDeliveryMan(book.deliveryManId);
+              const assignedId = selectedGuy[book.id] || "";
+              const assignedGuy = deliveryMen.find((dm) => dm.id == assignedId);
+
               return (
                 <Tr key={book.id}>
                   <Td>
                     <VStack align="start" spacing={1}>
                       <Text fontWeight="bold">{book.id}</Text>
-                      <Tag size="sm" colorScheme="blue">
-                        BOOK
-                      </Tag>
+                      <Tag size="sm" colorScheme="blue">BOOK</Tag>
                     </VStack>
                   </Td>
                   <Td>
                     <Text fontWeight="medium">{book.title}</Text>
-                    <Text fontSize="sm" color="gray.600">
-                      {book.authors.join(", ")}
-                    </Text>
+                    <Text fontSize="sm" color="gray.600">{book.authors.join(", ")}</Text>
                   </Td>
                   <Td>
                     {new Date(book.borrowedDate).toLocaleDateString("en-US", {
@@ -178,58 +163,97 @@ export default function DispatchBoardPage() {
                   </Td>
                   <Td>
                     {book.status === "Pending Dispatch" ? (
-                      <Select
-                        placeholder="Assign Delivery"
-                        value={selectedDeliveryGuyMap[book.id] || ""}
-                        onChange={(e) => handleDeliveryPersonChange(book.id, e.target.value)}
-                        size="sm"
-                      >
-                        {deliveryMen.map((dm) => (
-                          <option key={dm.id} value={dm.id}>
-                            {dm.name} ({dm.phone})
-                          </option>
-                        ))}
-                      </Select>
-
+                      <>
+                        <Select
+                          placeholder="Assign Delivery"
+                          size="sm"
+                          value={assignedId}
+                          onChange={(e) =>
+                            setSelectedGuy((prev) => ({
+                              ...prev,
+                              [book.id]: e.target.value,
+                            }))
+                          }
+                        >
+                          {deliveryMen.map((dm) => (
+                            <option key={dm.id} value={dm.id}>
+                              {dm.name} ({dm.phone})
+                            </option>
+                          ))}
+                        </Select>
+                        {assignedGuy && (
+                          <Box mt={1}>
+                            <Text fontSize="sm" fontWeight="medium">
+                              Selected: {assignedGuy.name}
+                            </Text>
+                            <Text fontSize="xs" color="gray.500">
+                              {assignedGuy.phone}
+                            </Text>
+                          </Box>
+                        )}
+                      </>
                     ) : (
                       <Box>
                         <Text fontWeight="semibold" fontSize="sm">
-                          {deliveryMan?.name}
+                          {assignedGuy?.name || "N/A"}
                         </Text>
                         <Text fontSize="xs" color="gray.500">
-                          {deliveryMan?.phone}
+                          {assignedGuy?.phone || "N/A"}
                         </Text>
                       </Box>
                     )}
                   </Td>
                   <Td>
                     <Button
-                      colorScheme="red"
+                      colorScheme="blue"
                       size="sm"
                       onClick={async () => {
-                        if (!selectedDeliveryGuyMap) return;
+                        const deliveryGuyId = selectedGuy[book.id];
+                        if (!deliveryGuyId) {
+                          alert("Please select a delivery person.");
+                          return;
+                        }
 
-                        const deliveryGuyId = selectedDeliveryGuyMap[book.id];
-                        
-                           const body = JSON.stringify({
-                            dispatchId: book.id, // ✅ send dispatch ID
-                            deliveryGuyId, // ✅ send delivery guy ID
+                        console.log("Dispatching book:", book.id);
+                        console.log("Selected ID:", deliveryGuyId);
+                        const selected = getDeliveryMan(deliveryGuyId);
+                        console.log(deliveryMen);
+                        console.log(selected);
+                        console.log("Selected Name:", selected?.name);
+                        console.log("Selected Phone:", selected?.phone);
+
+                        try {
+                          const res = await fetch("/api/dispatchBook", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              dispatchId: book.id,
+                              deliveryGuyId,
+                            }),
                           });
-                             
-                          console.log("body:"+ body);
-                        const response = await fetch("/api/dispatchBook", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: body,
-                        });
-                         
-                        const data = await response.json();
-                        console.log("Dispatch update response:", data);
+
+                          if (res.ok) {
+                            setBooks((prev) =>
+                              prev.map((b) =>
+                                b.id === book.id
+                                  ? {
+                                      ...b,
+                                      status: "Dispatched",
+                                    }
+                                  : b
+                              )
+                            );
+                          } else {
+                            alert("Dispatch failed.");
+                          }
+                        } catch (err) {
+                          console.error("Dispatch error:", err);
+                          alert("An error occurred.");
+                        }
                       }}
                     >
                       Assign
                     </Button>
-
                   </Td>
                 </Tr>
               );
@@ -237,6 +261,7 @@ export default function DispatchBoardPage() {
           </Tbody>
         </Table>
       </Box>
-    </Flex>
+    </Flex></>
+    
   );
 }
