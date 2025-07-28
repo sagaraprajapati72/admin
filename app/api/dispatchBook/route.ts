@@ -6,8 +6,8 @@ export async function POST(req: NextRequest) {
   try {
     const body =await  req.json();
     const { dispatchId, deliveryGuyId} = body ;
-
-    const res = await fetch(`http://192.168.29.110:8080/api/dispatch/loan/${dispatchId}`, {
+const backendBaseUrl  = process.env.BACKEND_API_URL;
+    const res = await fetch(`${backendBaseUrl}/api/dispatch/loan/${dispatchId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
