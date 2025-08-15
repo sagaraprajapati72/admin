@@ -19,18 +19,23 @@ import Footer from "../../components/Footer";
 
 type CategoryFormData = {
   name: string;
-  icon: string;
   description: string;
 };
 
 export default function CreateLanguagePage() {
   const { register, handleSubmit } = useForm<CategoryFormData>();
   const [image, setImage] = useState<File | null>(null);
+  const [icon, setIcon] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(null);
   const toast = useToast();
   const router = useRouter();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>,
+    setPreviewState: React.Dispatch<React.SetStateAction<string | null>>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -47,27 +52,26 @@ export default function CreateLanguagePage() {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreview(reader.result as string);
+      setPreviewState(reader.result as string);
     };
     reader.readAsDataURL(file);
 
-    setImage(file);
+    setFile(file);
   };
 
   const onSubmit = async (data: CategoryFormData) => {
-
-    // Build the author payload object
     const categoryPayload = {
       name: data.name,
-      icon: data.icon,
       description: data.description
     };
 
-    // Create FormData and append JSON payload and image
     const formData = new FormData();
     formData.append("category", JSON.stringify(categoryPayload));
     if (image) {
       formData.append("image", image);
+    }
+    if (icon) {
+      formData.append("icon", icon);
     }
 
     try {
@@ -113,21 +117,17 @@ export default function CreateLanguagePage() {
               </FormControl>
 
               <FormControl>
-                <FormLabel>Icon Keyword</FormLabel>
-                <Input {...register("icon")} placeholder="Enter Icon Keyword" />
-              </FormControl>
-
-
-              <FormControl>
                 <FormLabel>Description</FormLabel>
                 <Textarea
                   {...register("description")}
                   placeholder="Enter Description"
-                  resize="vertical" // or "none", "horizontal", "both" depending on your preference
+                  resize="vertical"
                 />
               </FormControl>
+
+              {/* Category Image Upload */}
               <FormControl>
-                <FormLabel textAlign="center">Upload Image</FormLabel>
+                <FormLabel textAlign="center">Upload Category Image</FormLabel>
                 <Box
                   position="relative"
                   width="120px"
@@ -136,12 +136,12 @@ export default function CreateLanguagePage() {
                   borderRadius="md"
                   cursor="pointer"
                   overflow="hidden"
-                  mx="auto"  // centers horizontally
+                  mx="auto"
                 >
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    onChange={(e) => handleFileChange(e, setImage, setPreview)}
                     position="absolute"
                     top={0}
                     left={0}
@@ -153,7 +153,7 @@ export default function CreateLanguagePage() {
                   {preview ? (
                     <img
                       src={preview}
-                      alt="Selected"
+                      alt="Category"
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
@@ -173,6 +173,53 @@ export default function CreateLanguagePage() {
                 </Box>
               </FormControl>
 
+              {/* Category Icon Upload */}
+              <FormControl>
+                <FormLabel textAlign="center">Upload Category Icon</FormLabel>
+                <Box
+                  position="relative"
+                  width="80px"
+                  height="80px"
+                  border="2px dashed #CBD5E0"
+                  borderRadius="full"
+                  cursor="pointer"
+                  overflow="hidden"
+                  mx="auto"
+                >
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, setIcon, setIconPreview)}
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    width="100%"
+                    height="100%"
+                    opacity={0}
+                    cursor="pointer"
+                  />
+                  {iconPreview ? (
+                    <img
+                      src={iconPreview}
+                      alt="Category Icon"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                    />
+                  ) : (
+                    <Box
+                      position="absolute"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      color="#A0AEC0"
+                      fontSize="sm"
+                      textAlign="center"
+                      pointerEvents="none"
+                    >
+                      Icon
+                    </Box>
+                  )}
+                </Box>
+              </FormControl>
 
               <Button type="submit" colorScheme="teal" width="full">
                 Submit

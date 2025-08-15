@@ -37,110 +37,67 @@ export async function POST(request: Request) {
         // Parse the incoming multipart/form-data request
         const { fields, files } = await parseForm(request);
 
+        // Parse category JSON
         let categoryContent = fields.category;
-        if (Array.isArray(categoryContent)) {
-            categoryContent = categoryContent[0];
-        }
+        if (Array.isArray(categoryContent)) categoryContent = categoryContent[0];
         if (!categoryContent) {
-            return NextResponse.json({ error: 'Author field is required' }, { status: 400 });
+            return NextResponse.json({ error: 'Category field is required' }, { status: 400 });
         }
 
-        // Retrieve the uploaded image file (expected under the key 'image')
-        let imageFile = files.image;
-        if (!imageFile) {
-            return NextResponse.json({ error: 'Image file is required' }, { status: 400 });
-        }
-        if (Array.isArray(imageFile)) {
-            imageFile = imageFile[0];
-        }
+        const categoryJson = typeof categoryContent === 'string'
+            ? categoryContent
+            : JSON.stringify(categoryContent);
 
-        // Extract file path (could be under 'filepath' or 'path')
-        const filePath = imageFile.filepath || imageFile.path;
-        if (!filePath) {
-            return NextResponse.json({ error: 'File path is undefined' }, { status: 400 });
-        }
-        const originalFilename = imageFile.originalFilename || 'upload.jpg';
-        let mimetype = imageFile.mimetype || 'application/octet-stream';
-        if (mimetype === 'application/octet-stream') {
-            const lower = originalFilename.toLowerCase();
-            if (lower.endsWith('.png')) {
-                mimetype = 'image/png';
-            } else if (lower.endsWith('.gif')) {
-                mimetype = 'image/gif';
-            } else {
-                mimetype = 'image/jpeg';
-            }
-        }
-
-        // Create a new FormData instance for the outgoing request.
+        // Create FormData to send to backend
         const formData = new FormData();
+        formData.append('category', new Blob([categoryJson], { type: 'application/json' }));
 
-        // Append the "author" part as a Buffer to ensure it is sent correctly.
-        formData.append('category', Buffer.from(categoryContent), { contentType: 'application/json' });
+        // Helper to process file
+        const appendFile = (fileObj: any, key: string) => {
+            if (!fileObj) return;
+            if (Array.isArray(fileObj)) fileObj = fileObj[0];
+            const filePath = fileObj.filepath || fileObj.path;
+            if (!filePath) return;
 
-        // Append the image file. We read the file into memory since it’s small.
-        const fileBuffer = readFileSync(filePath);
-        formData.append('image', fileBuffer, {
-            filename: originalFilename,
-            contentType: mimetype,
-        });
+            const filename = fileObj.originalFilename || 'upload.jpg';
+            let mimetype = fileObj.mimetype || 'application/octet-stream';
 
-        // Get the complete multipart body as a Buffer.
-        const buffer = formData.getBuffer();
-        // Calculate the content length.
-        const contentLength = await new Promise<number>((resolve, reject) => {
-            formData.getLength((err, length) => {
-                if (err) return reject(err);
-                resolve(length);
-            });
-        });
+            // Guess mimetype if unknown
+            if (mimetype === 'application/octet-stream') {
+                const lower = filename.toLowerCase();
+                if (lower.endsWith('.png')) mimetype = 'image/png';
+                else if (lower.endsWith('.gif')) mimetype = 'image/gif';
+                else mimetype = 'image/jpeg';
+            }
 
-        // Forward the request to the backend book creation endpoint.
+            const fileBuffer = readFileSync(filePath);
+            formData.append(key, new Blob([fileBuffer], { type: mimetype }), filename);
+        };
+
+        // Append both image & icon if provided
+        appendFile(files.image, 'image');
+        appendFile(files.icon, 'icon');
+
+        // Send to backend
         const backendBaseUrl = process.env.BACKEND_API_URL;
         if (!backendBaseUrl) {
             throw new Error('BACKEND_API_URL environment variable is not set');
         }
 
         const backendUrl = `${backendBaseUrl}/api/categories`;
-
         const response = await fetch(backendUrl, {
             method: 'POST',
-            headers: {
-                ...formData.getHeaders(),
-                'Content-Length': contentLength.toString(),
-            },
-            body: buffer,
+            body: formData as any, // TS may still require `as any`
         });
 
-        // Process the backend response.
         const responseContentType = response.headers.get('content-type');
-        let result;
-        if (responseContentType && responseContentType.includes('application/json')) {
-            result = await response.json();
-        } else {
-            result = await response.text();
-        }
+        const result = responseContentType?.includes('application/json')
+            ? await response.json()
+            : await response.text();
 
         return NextResponse.json(result, { status: response.status });
     } catch (error) {
         console.error('Error processing request:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-}
-
-export async function GET(request: Request) {
-  try {
-    const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:8080';
-    const backendUrl = `${BACKEND_API_URL}/api/categories`;
-
-    const response = await fetch(backendUrl, { method: 'GET' });
-    if (!response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch audiences' }, { status: response.status });
-    }
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Error fetching audiences from backend:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
 }
