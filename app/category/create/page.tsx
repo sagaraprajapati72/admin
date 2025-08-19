@@ -39,10 +39,10 @@ export default function CreateLanguagePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024) {
+    if (file.size >  1024 * 1024) {
       toast({
         title: "Image too large",
-        description: "Image must be under 1MB.",
+        description: "Image must be under 5MB.",
         status: "error",
         duration: 3000,
         isClosable: true,
