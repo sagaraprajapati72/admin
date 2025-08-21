@@ -30,12 +30,11 @@ async function parseForm(req: Request): Promise<{ fields: any; files: any }> {
   });
 }
 
+// ✅ POST handler (your existing code)
 export async function POST(request: Request) {
   try {
-    // Parse form
     const { fields, files } = await parseForm(request);
 
-    // Extract category field
     let categoryContent = fields.category;
     if (Array.isArray(categoryContent)) {
       categoryContent = categoryContent[0];
@@ -49,13 +48,11 @@ export async function POST(request: Request) {
         ? categoryContent
         : JSON.stringify(categoryContent);
 
-    // Create FormData (Node.js `form-data` package)
     const formData = new FormData();
     formData.append('category', Buffer.from(categoryJson), {
       contentType: 'application/json',
     });
 
-    // Helper: append a file to formData
     const appendFile = (fileObj: any, key: string) => {
       if (!fileObj) return;
       if (Array.isArray(fileObj)) fileObj = fileObj[0];
@@ -65,7 +62,6 @@ export async function POST(request: Request) {
       const filename = fileObj.originalFilename || 'upload.jpg';
       let mimetype = fileObj.mimetype || 'application/octet-stream';
 
-      // Fallback mimetype
       if (mimetype === 'application/octet-stream') {
         const lower = filename.toLowerCase();
         if (lower.endsWith('.png')) mimetype = 'image/png';
@@ -74,17 +70,12 @@ export async function POST(request: Request) {
       }
 
       const fileBuffer = readFileSync(filePath);
-      formData.append(key, fileBuffer, {
-        filename,
-        contentType: mimetype,
-      });
+      formData.append(key, fileBuffer, { filename, contentType: mimetype });
     };
 
-    // Add files if present
     appendFile(files.image, 'image');
     appendFile(files.icon, 'icon');
 
-    // Get multipart buffer & headers
     const buffer = formData.getBuffer();
     const contentLength: number = await new Promise((resolve, reject) => {
       formData.getLength((err, length) => {
@@ -93,7 +84,6 @@ export async function POST(request: Request) {
       });
     });
 
-    // Send to backend
     const backendBaseUrl = process.env.BACKEND_API_URL;
     if (!backendBaseUrl) {
       throw new Error('BACKEND_API_URL environment variable is not set');
@@ -118,6 +108,30 @@ export async function POST(request: Request) {
     return NextResponse.json(result, { status: response.status });
   } catch (error) {
     console.error('Error processing request:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+// ✅ GET handler (new)
+export async function GET() {
+  try {
+    const backendBaseUrl = process.env.BACKEND_API_URL;
+    if (!backendBaseUrl) {
+      throw new Error('BACKEND_API_URL environment variable is not set');
+    }
+    const backendUrl = `${backendBaseUrl}/api/categories`;
+
+    const response = await fetch(backendUrl, { method: 'GET' });
+    const responseContentType = response.headers.get('content-type');
+
+    const result =
+      responseContentType?.includes('application/json')
+        ? await response.json()
+        : await response.text();
+
+    return NextResponse.json(result, { status: response.status });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
