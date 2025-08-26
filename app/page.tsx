@@ -14,14 +14,13 @@ import {
 } from "@chakra-ui/react";
 
 const login = async (username: string, password: string) => {
-  const res = await fetch("/login", {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       username,
       password,
-    }).toString(),
-    credentials: "include",
+    }).toString()
   });
 
   if (res.ok) {
