@@ -1,50 +1,116 @@
-// app/page.tsx (Landing Page)
-'use client';
+// app/login/page.tsx
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { Box, Heading, SimpleGrid, Button } from '@chakra-ui/react';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import DashboardCard from './components/DashboardCard';
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Heading,
+  VStack,
+  Text,
+} from "@chakra-ui/react";
 
-export default function LandingPage() {
-  // Dummy metrics — replace with your actual data or API calls
-  const metrics = {
-    bookCount: 120,
-    audienceCount: 250,
-    partnerCount: 15,
-    revenue: '$12K',
+const login = async (username: string, password: string) => {
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      username,
+      password,
+    }).toString(),
+    credentials: "include",
+  });
+
+  if (res.ok) {
+    window.location.href = "/dashboard"; // cookie set by Spring Security
+  } else {
+    throw new Error("Login failed");
+  }
+};
+
+export default function LoginPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      await login(username, password);
+    } catch (err) {
+      setError("Invalid username or password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box>
-      <Header />
+    <Box
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg="gray.50"
+      px={4}
+    >
+      <Box
+        as="form"
+        onSubmit={handleSubmit}
+        bg="white"
+        p={8}
+        rounded="xl"
+        shadow="md"
+        w="100%"
+        maxW="sm"
+      >
+        <VStack spacing={4} align="stretch">
+          <Heading size="lg" textAlign="center">
+            Login
+          </Heading>
 
-      <Box p={8} bg="gray.50" minH="calc(100vh - 128px)">
-        <Heading mb={6} color="gray.800">
-          Dashboard
-        </Heading>
+          <FormControl isRequired>
+            <FormLabel>Username</FormLabel>
+            <Input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+            />
+          </FormControl>
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mb={6}>
-          <DashboardCard title="Books" value={metrics.bookCount} helpText="Total number of books" />
-          <DashboardCard title="Audiences" value={metrics.audienceCount} helpText="Registered audiences" />
-          <DashboardCard title="Partners" value={metrics.partnerCount} helpText="Onboarded partners" />
-          <DashboardCard title="Revenue" value={metrics.revenue} helpText="Monthly revenue" />
-        </SimpleGrid>
+          <FormControl isRequired>
+            <FormLabel>Password</FormLabel>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+            />
+          </FormControl>
 
-        <Box textAlign="center">
-          <Link href="/category/top-books">
-            <Button colorScheme="teal" size="lg">
-              Manage Top Books by Category
-            </Button>
-          </Link>
-        </Box>
+          {error && (
+            <Text color="red.500" fontSize="sm" textAlign="center">
+              {error}
+            </Text>
+          )}
 
-       
+          <Button
+            type="submit"
+            colorScheme="red"
+            isLoading={loading}
+            loadingText="Logging in..."
+          >
+            Login
+          </Button>
+        </VStack>
       </Box>
-
-      <Footer />
     </Box>
   );
 }
