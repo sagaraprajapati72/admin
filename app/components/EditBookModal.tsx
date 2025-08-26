@@ -155,7 +155,7 @@ export default function EditBookModal({ isOpen, onClose, bookId }: Props) {
 
   const fetchBook = async () => {
     if (!bookId) return;
-    const res = await fetch(`/api/book/${bookId}`);
+    const res = await fetch(`/api/public/books/${bookId}`);
     const book = await res.json();
 
     setValue("title", book.title);

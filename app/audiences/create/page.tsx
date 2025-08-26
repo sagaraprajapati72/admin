@@ -32,13 +32,16 @@ export default function CreateAudiencePage() {
 
   const onSubmit = async (data: AudienceFormData) => {
     // Create FormData object for the audience payload
-    const formData = new FormData();
-    formData.append("name", data.name);
 
     try {
       const response = await fetch("/api/admin/audiences", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to create audience");

@@ -39,7 +39,7 @@ export default function DeleteLanguagePage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/public/languages/search?search=${encodeURIComponent(searchQuery)}`
+        `/api/public/languages/search?search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch languages");

@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       
       // 👇 Book search goes to another service
       {
-        source: "/api//api/booksearch",
+        source: "/api/booksearch",
         destination: "http://localhost:8081/search",
       },
       {

@@ -141,7 +141,8 @@ export default function CreateAuthorPage() {
     };
 
     const formData = new FormData();
-    formData.append("author", JSON.stringify(authorPayload));
+    const blob = new Blob([JSON.stringify(authorPayload)], { type: "application/json" });
+    formData.append("author", blob);
     if (authorImage) {
       formData.append("image", authorImage);
     }

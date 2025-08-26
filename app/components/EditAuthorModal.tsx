@@ -88,19 +88,22 @@ const EditAuthorModal: React.FC<EditAuthorModalProps> = ({ isOpen, onClose, auth
   // Handle update
   const onSubmit = async (values: AuthorFormValues) => {
     try {
-     
+
       const payload = {
-      name: values.name,
-      biography: values.biography,
-      education: values.education,
-      awards: values.awards,
-      authorId :authorId
-     
-    }; 
+        name: values.name,
+        biography: values.biography,
+        education: values.education,
+        awards: values.awards,
+        authorId: authorId
+
+      };
 
       const res = await fetch(`/api/admin/authors/${authorId}`, {
         method: "PUT",
-       body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Failed to update author");

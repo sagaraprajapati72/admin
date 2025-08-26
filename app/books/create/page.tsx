@@ -435,7 +435,7 @@ export default function CreateBookPage() {
     const selectedLanguage = data.language?.value;
     const selectedGenres = data.genre.map((g) => g.value);
     const categoryId = data.category?.value || null;
-  console.log({ authorIds, audienceIds, selectedGenres, categoryId });
+    console.log({ authorIds, audienceIds, selectedGenres, categoryId });
     // Create the book payload object that matches your backend DTO
     const bookPayload = {
       title: data.title,
@@ -454,7 +454,10 @@ export default function CreateBookPage() {
 
     // Create FormData and append the book JSON and images.
     const formData = new FormData();
-    formData.append("book", JSON.stringify(bookPayload));
+    const blob = new Blob([JSON.stringify(bookPayload)], {
+      type: "application/json",
+    });
+    formData.append("book", blob);
 
     // Append images (skip null slots)
     bookImages.forEach((file) => {
@@ -533,7 +536,7 @@ export default function CreateBookPage() {
                       instanceId="authors"
                       cacheOptions
                       defaultOptions
-                       isMulti
+                      isMulti
                       loadOptions={fetchAuthors}
                       {...field}
                     />
@@ -728,7 +731,7 @@ export default function CreateBookPage() {
                       instanceId="genre"
                       cacheOptions
                       defaultOptions
-                       isMulti
+                      isMulti
                       loadOptions={fetchGenres}
                       {...field}
                     />
@@ -754,7 +757,7 @@ export default function CreateBookPage() {
                       instanceId="audiences"
                       cacheOptions
                       defaultOptions
-                       isMulti
+                      isMulti
                       loadOptions={fetchAudiences}
                       {...field}
                     />

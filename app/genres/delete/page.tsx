@@ -38,7 +38,7 @@ export default function DeleteGenrePage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/public/genres/search=${encodeURIComponent(searchQuery)}`
+        `/api/public/genres/search?search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch genres");

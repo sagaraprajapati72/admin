@@ -31,14 +31,16 @@ export default function CreateGenrePage() {
   const router = useRouter();
 
   const onSubmit = async (data: GenreFormData) => {
-    // Create FormData for the genre payload
-    const formData = new FormData();
-    formData.append("name", data.name);
 
     try {
-      const response = await fetch("/api/public/genres", {
+      const response = await fetch("/api/admin/genres", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to create genre");

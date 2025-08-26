@@ -4,9 +4,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { Box, Heading, SimpleGrid, Button } from '@chakra-ui/react';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import DashboardCard from './components/DashboardCard';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import DashboardCard from '../components/DashboardCard';
 
 export default function LandingPage() {
   // Dummy metrics — replace with your actual data or API calls
@@ -33,15 +33,6 @@ export default function LandingPage() {
           <DashboardCard title="Revenue" value={metrics.revenue} helpText="Monthly revenue" />
         </SimpleGrid>
 
-        <Box textAlign="center">
-          <Link href="/category/top-books">
-            <Button colorScheme="teal" size="lg">
-              Manage Top Books by Category
-            </Button>
-          </Link>
-        </Box>
-
-       
       </Box>
 
       <Footer />

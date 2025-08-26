@@ -32,15 +32,17 @@ export default function CreateLanguagePage() {
   const router = useRouter();
 
   const onSubmit = async (data: LanguageFormData) => {
-    // Create FormData object with language details
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("code", data.code);
 
     try {
       const response = await fetch("/api/admin/languages", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          code: data.code,
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to create language");
