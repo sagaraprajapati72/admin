@@ -69,7 +69,7 @@ export default function EditBookModal({ isOpen, onClose, bookId }: Props) {
   const [generatingKeywords, setGeneratingKeywords] = useState(false);
   const router = useRouter();
   const fetchAuthors = async (input: string): Promise<Option[]> => {
-    const res = await fetch(`/api/authors?search=${input}`);
+    const res = await fetch(`/api/public/authors?search=${input}`);
     const data = await res.json();
     return data.map((a: any) => ({ value: a.id, label: a.name }));
   };
@@ -82,10 +82,10 @@ export default function EditBookModal({ isOpen, onClose, bookId }: Props) {
     };
 
     const [g, l, a, c] = await Promise.all([
-      fetchOptions("/api/genres", (i: any) => ({ value: i.id, label: i.name })),
-      fetchOptions("/api/languages", (i: any) => ({ value: i.id, label: i.name })),
-      fetchOptions("/api/audiences", (i: any) => ({ value: i.id, label: i.targetGroup })),
-      fetchOptions("/api/categories", (i: any) => ({ value: i.id, label: i.name })),
+      fetchOptions("/api/public/genres", (i: any) => ({ value: i.id, label: i.name })),
+      fetchOptions("/api/public/languages", (i: any) => ({ value: i.id, label: i.name })),
+      fetchOptions("/api/public/audiences", (i: any) => ({ value: i.id, label: i.targetGroup })),
+      fetchOptions("/api/public/categories", (i: any) => ({ value: i.id, label: i.name })),
     ]);
 
     setGenres(g);
@@ -196,7 +196,7 @@ export default function EditBookModal({ isOpen, onClose, bookId }: Props) {
       categoryId: data.category?.value,
     };
 
-    const res = await fetch(`/api/book/${bookId}`, {
+    const res = await fetch(`/api/admin/books/${bookId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

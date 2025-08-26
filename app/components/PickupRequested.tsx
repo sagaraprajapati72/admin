@@ -64,7 +64,7 @@ export default function PickupRequested() {
   useEffect(() => {
     const fetchDeliveryMen = async () => {
       try {
-        const res = await fetch(`/api/delivery-men`);
+        const res = await fetch(`/api/public/deliveryguy`);
         const data = await res.json();
         setDeliveryMen(data);
       } catch (err) {
@@ -74,13 +74,13 @@ export default function PickupRequested() {
 
     const fetchBooks = async () => {
       try {
-        const res = await fetch(`/api/pickup-scheduled`);
+        const res = await fetch(`/api/admin/loans/pickup-scheduled`);
         const dispatchList = await res.json();
 
         const enriched = await Promise.all(
           dispatchList.map(async (item: any) => {
             try {
-              const bookRes = await fetch(`/api/book/${item.bookId}`);
+              const bookRes = await fetch(`/api/public/books/${item.bookId}`);
               const book = await bookRes.json();
 
               return {
@@ -236,11 +236,10 @@ export default function PickupRequested() {
                           }
 
                           try {
-                            const res = await fetch("/api/assign-pickup", {
+                            const res = await fetch(`/api/admin/dispatch/loan/${book.id}/assign-pickup`, {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({
-                                dispatchId: book.id,
                                 deliveryGuyId,
                               }),
                             });

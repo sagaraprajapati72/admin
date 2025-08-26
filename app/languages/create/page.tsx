@@ -38,7 +38,7 @@ export default function CreateLanguagePage() {
     formData.append("code", data.code);
 
     try {
-      const response = await fetch("/api/languages", {
+      const response = await fetch("/api/admin/languages", {
         method: "POST",
         body: formData,
       });

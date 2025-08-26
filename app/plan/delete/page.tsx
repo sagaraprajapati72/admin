@@ -66,7 +66,7 @@ export default function DeletePlanPage() {
   const handleDelete = async () => {
     if (!selectedPlan) return;
     try {
-      const response = await fetch(`/api/plan/${selectedPlan.id}`, {
+      const response = await fetch(`/api/admin/plan/${selectedPlan.id}`, {
         method: "DELETE",
       });
 

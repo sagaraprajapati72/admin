@@ -75,7 +75,7 @@ export default function CreateLanguagePage() {
     }
 
     try {
-      const response = await fetch("/api/categories", {
+      const response = await fetch("/api/admin/categories", {
         method: "POST",
         body: formData,
       });

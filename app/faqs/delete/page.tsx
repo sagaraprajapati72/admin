@@ -40,7 +40,7 @@ export default function DeleteFAQPage() {
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
-        const res = await fetch("/api/faqs");
+        const res = await fetch("/api/public/faqs");
         if (!res.ok) throw new Error("Failed to fetch FAQs");
         const data = await res.json();
         setFaqs(data);
@@ -63,7 +63,7 @@ export default function DeleteFAQPage() {
   const handleDelete = async () => {
     if (!selectedFAQ) return;
     try {
-      const res = await fetch(`/api/faqs/${selectedFAQ.id}`, {
+      const res = await fetch(`/api/admin/faqs/${selectedFAQ.id}`, {
         method: "DELETE",
       });
 

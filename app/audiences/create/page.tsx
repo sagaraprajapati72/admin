@@ -36,7 +36,7 @@ export default function CreateAudiencePage() {
     formData.append("name", data.name);
 
     try {
-      const response = await fetch("/api/audiences", {
+      const response = await fetch("/api/admin/audiences", {
         method: "POST",
         body: formData,
       });

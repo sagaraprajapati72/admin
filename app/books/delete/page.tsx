@@ -60,7 +60,7 @@ export default function DeleteBookPage() {
   const handleDelete = async () => {
     if (!selectedBook) return;
     try {
-      const response = await fetch(`/api/book/${selectedBook.id}`, {
+      const response = await fetch(`/api/admin/books/${selectedBook.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {

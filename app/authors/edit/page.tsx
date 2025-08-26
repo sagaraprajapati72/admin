@@ -30,7 +30,7 @@ export default function AuthorSearchPage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/authors?search=${encodeURIComponent(searchQuery)}`
+        `/api/public/authors?search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch authors");

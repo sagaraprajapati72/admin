@@ -59,13 +59,13 @@ export default function Collected() {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await fetch(`/api/picked-up`);
+        const res = await fetch(`/api/admin/loans/picked-up`);
         const dispatchList = await res.json();
 
         const enriched = await Promise.all(
           dispatchList.map(async (item: any) => {
             try {
-              const bookRes = await fetch(`/api/book/${item.bookId}`);
+              const bookRes = await fetch(`/api/public/book/${item.bookId}`);
               const book = await bookRes.json();
 
               return {
@@ -158,14 +158,12 @@ export default function Collected() {
                         size="sm"
                         onClick={async () => {
                           try {
-                            const res = await fetch("/api/collect", {
-                              method: "POST",
+                            const res = await fetch(`/admin/dispatch/loan/${book.id}/collect`, {
+                              method: "PUT",
                               headers: {
                                 "Content-Type": "application/json",
                               },
-                              body: JSON.stringify({ dispatchId: book.id }),
                             });
-
                             if (res.ok) {
                               setBooks((prev) =>
                                 prev.map((b) =>

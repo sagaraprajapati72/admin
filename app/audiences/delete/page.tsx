@@ -38,7 +38,7 @@ export default function DeleteAudiencePage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/audiences/search?search=${encodeURIComponent(searchQuery)}`
+        `/api/public/audiences/search?=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch audiences");
@@ -60,7 +60,7 @@ export default function DeleteAudiencePage() {
   const handleDelete = async () => {
     if (!selectedAudience) return;
     try {
-      const response = await fetch(`/api/audiences/${selectedAudience.id}`, {
+      const response = await fetch(`/api/admin/audiences/${selectedAudience.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {

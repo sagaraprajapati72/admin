@@ -39,7 +39,7 @@ export default function DeleteLanguagePage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/languages/search?search=${encodeURIComponent(searchQuery)}`
+        `/public/languages/search?search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch languages");
@@ -62,7 +62,7 @@ export default function DeleteLanguagePage() {
   const handleDelete = async () => {
     if (!selectedLanguage) return;
     try {
-      const response = await fetch(`/api/languages/${selectedLanguage.id}`, {
+      const response = await fetch(`/api/admin/languages/${selectedLanguage.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {

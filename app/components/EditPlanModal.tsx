@@ -82,7 +82,7 @@ const router = useRouter();
       if (!planId || !isOpen) return;
       try {
         setLoading(true);
-        const res = await fetch(`/api/plan/${planId}`);
+        const res = await fetch(`/api/public/plans/${planId}`);
         if (!res.ok) throw new Error("Failed to load plan");
         const data: Plan = await res.json();
 
@@ -118,7 +118,7 @@ const router = useRouter();
         planDetails: data.planDetails.map((item) => item.value),
       };
 
-      const res = await fetch(`/api/plan/${planId}`, {
+      const res = await fetch(`/api/admin/plan/${planId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transformedData),

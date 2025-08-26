@@ -5,13 +5,18 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async rewrites() {
     return [
+      
       // 👇 Book search goes to another service
+      {
+        source: "/api//api/booksearch",
+        destination: "http://localhost:8081/search",
+      },
       {
         source: "/api/genai/book-keywords",
         destination: "http://localhost:8081/api/genai/book-keywords",
       },
       {
-        source: "/api/genai/book-description",
+        source: "/api/genai/book-descriptions",
         destination: "http://localhost:8081/api/genai/book-description",
       },
       // 👇 everything else still goes to Spring Boot

@@ -60,7 +60,7 @@ type BookFormData = {
 const fetchAuthors = async (inputValue: string): Promise<Option[]> => {
   try {
     const response = await fetch(
-      `/api/authors?search=${encodeURIComponent(inputValue)}`
+      `/api/public/authors?search=${encodeURIComponent(inputValue)}`
     );
     if (!response.ok) {
       throw new Error("Failed to fetch authors");
@@ -78,7 +78,7 @@ const fetchAuthors = async (inputValue: string): Promise<Option[]> => {
 
 const fetchAudiences = async (): Promise<Option[]> => {
   try {
-    const response = await fetch("/api/audiences");
+    const response = await fetch("/api/public/audiences");
     if (!response.ok) {
       throw new Error("Failed to fetch audiences");
     }
@@ -94,7 +94,7 @@ const fetchAudiences = async (): Promise<Option[]> => {
 };
 const fetchCategories = async (): Promise<Option[]> => {
   try {
-    const response = await fetch("/api/categories");
+    const response = await fetch("/api/public/categories");
     const data = await response.json();
     console.log("Fetched categories:", data); // ✅ check if it's an array
 
@@ -114,7 +114,7 @@ const fetchCategories = async (): Promise<Option[]> => {
 
 const fetchLanguages = async (): Promise<Option[]> => {
   try {
-    const response = await fetch("/api/languages");
+    const response = await fetch("/api/public/languages");
     if (!response.ok) {
       throw new Error("Failed to fetch languages");
     }
@@ -132,7 +132,7 @@ const fetchLanguages = async (): Promise<Option[]> => {
 
 const fetchGenres = async (): Promise<Option[]> => {
   try {
-    const response = await fetch("/api/genres");
+    const response = await fetch("/api/public/genres");
     if (!response.ok) {
       throw new Error("Failed to fetch genres");
     }
@@ -465,7 +465,7 @@ export default function CreateBookPage() {
 
     console.log("Submitting payload:", bookPayload);
     try {
-      const response = await fetch("/api/book", {
+      const response = await fetch("/api/admin/books", {
         method: "POST",
         body: formData,
       });

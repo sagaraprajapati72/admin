@@ -19,7 +19,7 @@ export default function CategoryGrid({ onSelectCategory }: CategoryGridProps) {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch('/api/categories');
+        const res = await fetch('/api/public/categories');
         const data: Category[] = await res.json();
         setCategories(data);
       } catch (err) {

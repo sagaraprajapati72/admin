@@ -38,7 +38,7 @@ export default function DeleteAuthorPage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/authors?search=${encodeURIComponent(searchQuery)}`
+        `/api/public/authors?search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch authors");
@@ -61,7 +61,7 @@ export default function DeleteAuthorPage() {
   const handleDelete = async () => {
     if (!selectedAuthor) return;
     try {
-      const response = await fetch(`/api/authors/${selectedAuthor.id}`, {
+      const response = await fetch(`/api/admin/authors/${selectedAuthor.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {

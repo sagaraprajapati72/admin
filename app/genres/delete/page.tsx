@@ -38,7 +38,7 @@ export default function DeleteGenrePage() {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `/api/genres/search?search=${encodeURIComponent(searchQuery)}`
+        `/api/public/genres/search=${encodeURIComponent(searchQuery)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch genres");
@@ -61,7 +61,7 @@ export default function DeleteGenrePage() {
   const handleDelete = async () => {
     if (!selectedGenre) return;
     try {
-      const response = await fetch(`/api/genres/${selectedGenre.id}`, {
+      const response = await fetch(`/api/admin/genres/${selectedGenre.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {

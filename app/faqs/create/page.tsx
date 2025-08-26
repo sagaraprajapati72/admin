@@ -39,7 +39,7 @@ export default function CreateFAQSPage() {
  const router = useRouter();
   const onSubmit = async (data: FAQSFormData) => {
     try {
-      const res = await fetch("/api/faqs", {
+      const res = await fetch("/api/admin/faqs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

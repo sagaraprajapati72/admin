@@ -54,7 +54,7 @@ export default function DispatchBoardPage() {
   useEffect(() => {
     const fetchDeliveryMen = async () => {
       try {
-        const res = await fetch(`/api/delivery-men`);
+        const res = await fetch(`/api/public/deliveryguy`);
         const data = await res.json();
         setDeliveryMen(data);
       } catch (err) {
@@ -64,13 +64,13 @@ export default function DispatchBoardPage() {
 
     const fetchBooks = async () => {
       try {
-        const res = await fetch(`/api/pending-dispatch`);
+        const res = await fetch(`/api/admin/loans/pending-dispatch`);
         const dispatchList = await res.json();
 
         const enriched = await Promise.all(
           dispatchList.map(async (item: any) => {
             try {
-              const bookRes = await fetch(`/api/book/${item.bookId}`);
+              const bookRes = await fetch(`/api/public/books/${item.bookId}`);
               const book = await bookRes.json();
 
               return {
@@ -223,12 +223,11 @@ export default function DispatchBoardPage() {
                         console.log("Selected Phone:", selected?.phone);
 
                         try {
-                          const res = await fetch("/api/dispatchBook", {
+                          const res = await fetch(`/api/admin/dispatch/loan/${book.id}`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
-                              dispatchId: book.id,
-                              deliveryGuyId,
+                              deliveryGuyId
                             }),
                           });
 

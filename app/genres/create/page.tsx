@@ -36,7 +36,7 @@ export default function CreateGenrePage() {
     formData.append("name", data.name);
 
     try {
-      const response = await fetch("/api/genres", {
+      const response = await fetch("/api/public/genres", {
         method: "POST",
         body: formData,
       });

@@ -147,7 +147,7 @@ export default function CreateAuthorPage() {
     }
 
     try {
-      const response = await fetch("/api/authors", {
+      const response = await fetch("/api/admin/authors", {
         method: "POST",
         body: formData,
       });

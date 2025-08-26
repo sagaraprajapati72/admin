@@ -60,7 +60,7 @@ export default function EditFAQModal({ isOpen, onClose, faq, onUpdate }: Props) 
 
   const onSubmit = async (data: FAQ) => {
     try {
-      const res = await fetch(`/api/faqs/${faq?.id}`, {
+      const res = await fetch(`/api/admin/faqs//${faq?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

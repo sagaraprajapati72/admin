@@ -45,7 +45,7 @@ export default function EditTopBooksModal({ isOpen, onClose, category }: EditTop
     if (!category) return;
     async function fetchTopBooks() {
       try {
-        const res = await fetch(`/api/categories/${category.id}/top-books`);
+        const res = await fetch(`/api/public/categories/${category.id}/top-books`);
         const data: Book[] = await res.json();
         setSelectedBooks(data);
       } catch (err) {
@@ -88,7 +88,7 @@ export default function EditTopBooksModal({ isOpen, onClose, category }: EditTop
   const handleSave = async () => {
     setLoading(true);
     try {
-      await fetch('/api/categories/top-books', {
+      await fetch('/api/admin/categories/top-books', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

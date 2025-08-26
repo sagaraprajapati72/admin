@@ -59,7 +59,7 @@ const EditAuthorModal: React.FC<EditAuthorModalProps> = ({ isOpen, onClose, auth
     const fetchAuthor = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/authors/${authorId}`);
+        const res = await fetch(`/api/public/authors/${authorId}`);
         if (!res.ok) throw new Error("Failed to fetch author");
         const data = await res.json();
 
@@ -98,7 +98,7 @@ const EditAuthorModal: React.FC<EditAuthorModalProps> = ({ isOpen, onClose, auth
      
     }; 
 
-      const res = await fetch(`/api/authors/${authorId}`, {
+      const res = await fetch(`/api/admin/authors/${authorId}`, {
         method: "PUT",
        body: JSON.stringify(payload),
       });
