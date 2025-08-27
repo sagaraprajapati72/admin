@@ -42,7 +42,7 @@ export default function DeletePlanPage() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch("/api/plan");
+        const response = await fetch("/api/public/subscription/plans");
         if (!response.ok) throw new Error("Failed to fetch plans");
         const data = await response.json();
         setPlans(data);
