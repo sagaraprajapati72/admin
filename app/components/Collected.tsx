@@ -158,7 +158,7 @@ export default function Collected() {
                         size="sm"
                         onClick={async () => {
                           try {
-                            const res = await fetch(`/admin/dispatch/loan/${book.id}/collect`, {
+                            const res = await fetch(`/api/admin/dispatch/loan/${book.id}/collect`, {
                               method: "PUT",
                               headers: {
                                 "Content-Type": "application/json",
