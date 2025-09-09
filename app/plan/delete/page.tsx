@@ -19,7 +19,7 @@ import {
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useRouter } from "next/navigation";
-import EditPlanModal from "../../components/EditPlanModal";
+import EditPlanModal from "./EditPlanModal";
 
 type Plan = {
   id: number;

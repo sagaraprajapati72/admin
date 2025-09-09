@@ -19,7 +19,7 @@ import {
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useRouter } from "next/navigation";
-import EditFAQModal from "../../components/EditFAQModal";
+import EditFAQModal from "./EditFAQModal";
 
 type FAQ = {
   id: number;

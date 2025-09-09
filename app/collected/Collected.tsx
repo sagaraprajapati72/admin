@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import MenuCard from "./MenuCard";
+import MenuCard from "../components/MenuCard";
 
 type Book = {
   id: string;

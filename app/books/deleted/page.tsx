@@ -1,51 +1,17 @@
-"use client";
-
-import React from "react";
-import { Box, Button, VStack, Heading, Text } from "@chakra-ui/react";
+import { fetchUserOrRedirect, User } from "../../../lib/auth";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useRouter } from "next/navigation";
+import BookDeletionSuccessClient from "./BookDeletionSuccessClient";
+import { redirect } from "next/navigation";
 
-export default function BookDeletionSuccess() {
-  const router = useRouter();
+export default async function BookDeletionSuccessPage() {
+  const user: User | null = await fetchUserOrRedirect();
 
   return (
-    <Box minH="100vh" display="flex" flexDirection="column">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <Box flex="1" overflowY="auto" bg="gray.50" p={6}>
-        <Box
-          maxW="800px"
-          mx="auto"
-          my={8}
-          p={6}
-          bg="white"
-          borderRadius="lg"
-          boxShadow="xl"
-          textAlign="center"
-        >
-          <Heading as="h1" mb={6} size="lg">
-            Book Successfully Deleted
-          </Heading>
-          <VStack spacing={4}>
-            <Button
-              colorScheme="teal"
-              width="full"
-              onClick={() => router.push("/books/delete")}
-            >
-              Delete Other
-            </Button>
-            <Button
-              colorScheme="teal"
-              variant="outline"
-              width="full"
-              onClick={() => router.push("/")}
-            >
-              Dashboard
-            </Button>
-          </VStack>
-        </Box>
-      </Box>
+      <BookDeletionSuccessClient user={user} />
       <Footer />
-    </Box>
+    </div>
   );
 }

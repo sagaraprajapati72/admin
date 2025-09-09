@@ -1,16 +1,13 @@
-import Collected from '../components/Collected';
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { fetchUserOrRedirect, User } from "../../lib/auth";
+import PendingDispatchClient from "./PendingDispatchClient";
 
-export default function PendingDispatchPage() {
+export default async function PendingDispatchPage() {
+  const user: User | null = await fetchUserOrRedirect();
 
-  return (
-    <>
-      <Header/>
-       <Collected/>;
-       <Footer/>
-    </>
-  );
-  
-  
+  if (!user) {
+    // redirect handled in fetchUserOrRedirect
+    return null;
+  }
+
+  return <PendingDispatchClient user={user} />;
 }
