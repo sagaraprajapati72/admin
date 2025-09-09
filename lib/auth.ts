@@ -17,7 +17,7 @@ export async function fetchUserOrRedirect(): Promise<User> {
 
   console.log("➡️ Forwarding cookies to backend:", cookieHeader);
 
-  const res = await fetch(`${process.env.READ_BACKEND_URL}/api/admin/me`, {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/me`, {
     method: "GET",
     headers: {
       Cookie: cookieHeader, // ✅ explicitly forward cookies
@@ -47,7 +47,7 @@ export async function fetchUserSafe(): Promise<User | null> {
 
   console.log("➡️ Forwarding cookies to backend:", cookieHeader);
 
-  const res = await fetch(`${process.env.READ_BACKEND_URL}/api/admin/me`, {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/me`, {
     method: "GET",
     headers: {
       Cookie: cookieHeader, // ✅ Explicitly pass session cookies
